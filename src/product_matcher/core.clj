@@ -21,14 +21,22 @@
 (defn get-tr [hash keyword]
   (str/trim (str/lower-case (get hash keyword ""))))
 
-(defn match-probability [listing product]
-  (if (str/starts-with?
-       (str (get-tr listing :title))
-       (str (get-tr product :manufacturer) " " (get-tr product :family) " " (get-tr product :model)))
-    1
-    0))
+(def matching-functions
+  [[(fn [l p] (str/starts-with?
+               (str (get-tr l :title))
+               (str/join " " [(get-tr p :manufacturer) (get-tr p :family) (get-tr p :model)])))
+    0 1]
+   [(fn [l p] (str/starts-with?
+               (str (get-tr l :manufacturer))
+                  (str (get-tr p :manufacturer))))
+    0 1]])
 
-()
+(defn match-probability [listing product]
+  (reduce * (map #(do
+                    (if ((get % 0) listing product)
+                        (get % 2)
+                        (get % 1)))
+                 matching-functions)))
 
 (defn -main
   [& args]
