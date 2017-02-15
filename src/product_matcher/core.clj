@@ -75,8 +75,9 @@ matching-functions and their weights."
                 :listings
                 (reduce (fn [product-listings listing]
                           (if (= 1 (match-probability listing product))
-                            (println "MATCH" product listing)
-                            (conj product-listings listing)))
+                            ;; (println "MATCH" product listing)
+                            (conj product-listings listing)
+                            product-listings))
                         []
                         listings)))
        products))
@@ -87,4 +88,5 @@ matching-functions and their weights."
   ;; (print "Matches found: 0 \r")
   (time
    (doall
-    (match-all listings products))))
+    (io/write-all-to-file "resources/results.txt"
+                          (match-all listings products)))))

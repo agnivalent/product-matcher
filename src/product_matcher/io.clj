@@ -11,3 +11,10 @@
   (with-open [stream (clojure.java.io/reader file-name)]
     (doall
      (read-json-stream stream))))
+
+(defn write-all-to-file [file-name entities]
+  (with-open [stream (clojure.java.io/writer file-name)]
+    (doall
+     (map
+      #(.write stream (str (json/write-str %) "\n"))
+      entities))))
