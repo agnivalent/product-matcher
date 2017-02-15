@@ -23,13 +23,6 @@
   "aliases for product manufacturers"
   {"fujifilm" ["fuji"]})
 
-(defn- any? [bool-fn this thats]
-  "does an invocation of bool-fn for this and any of thats return true?"
-  (reduce #(or %1 %2)
-          false
-          (map #(bool-fn this %) thats)))
-
-
 (def matching-functions
   "a collection of matching functions. Boolean function (does listing match
   product?), then a value onwhich overall probability is multiplien if no match,
@@ -40,17 +33,15 @@
       (re-find (re-pattern (str "^" (get-tr p :manufacturer)
                                 "( " (if (:family p) (get-tr p :family) "\\w+") ")? "
                                 (get-tr p :model)))
-               (get-tr l :title))
-      )
+               (get-tr l :title)))
     0 1]
    [(fn [l p]
       ;; match if a product's manufacturer or it's aliases are encountered in
       ;; listing's manufacturer
-      (any?
-       #(.contains %1 %2)
-       (get-tr l :manufacturer)
-       (into  [(get-tr p :manufacturer)]
-              (manufacturer-aliases (get-tr p :manufacturer)))))
+      (let [p-m (get-tr p :manufacturer)]
+        (re-find (re-pattern
+                  (str "(" (str/join "|" (into  [p-m] (manufacturer-aliases p-m))) ")"))
+                 (get-tr l :manufacturer))))
     0.5 1]])
 
 (defn match-probability [listing product]
@@ -61,13 +52,6 @@ matching-functions and their weights."
                         (get % 2)
                         (get % 1)))
                  matching-functions)))
-
-;; (defn match-all [listings products]
-;;   (for [l listings p products
-;;         :when (let [probability (match-probability l p)]
-;;                 ;; (if (= 1 probability) (print "Matches found: 123123    \r"))
-;;                 (= 1 probability))]
-;;     [l p]))
 
 (defn match-all [listings products]
   (pmap (fn [product]
