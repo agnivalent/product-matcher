@@ -54,7 +54,6 @@
   [& args]
   (time
    (doall
-    (map println
-         (for [l listings p products
-               :when (= 1 (match-probability l p))]
-           [l p])))))
+    (for [l listings p products
+          :when (= 1 (match-probability l p))]
+      [l p]))))
