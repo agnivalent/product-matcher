@@ -23,7 +23,7 @@
   "aliases for product manufacturers"
   {"fujifilm" ["fuji"]})
 
-(defn any? [bool-fn this thats]
+(defn- any? [bool-fn this thats]
   "does an invocation of bool-fn for this and any of thats return true?"
   (reduce #(or %1 %2)
           false
@@ -37,11 +37,11 @@
   [[(fn [l p]
       ;; match if a listing title begins with a full model name (with manufacturer
       ;; and possibly family)
-      (any?
-       str/starts-with?
-       (get-tr l :title)
-       [(str/join " " [(get-tr p :manufacturer) (get-tr p :model)])
-        (str/join " " [(get-tr p :manufacturer) (get-tr p :family) (get-tr p :model)])]))
+      (re-find (re-pattern (str "^" (get-tr p :manufacturer)
+                                "( " (if (:family p) (get-tr p :family) "\\w+") ")? "
+                                (get-tr p :model)))
+               (get-tr l :title))
+      )
     0 1]
    [(fn [l p]
       ;; match if a product's manufacturer or it's aliases are encountered in
@@ -80,7 +80,7 @@ matching-functions and their weights."
                             product-listings))
                         []
                         listings)))
-       products))
+        products))
 
 (defn -main
   [& args]
