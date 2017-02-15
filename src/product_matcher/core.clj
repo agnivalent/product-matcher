@@ -3,9 +3,9 @@
   (:require [product-matcher.io :as io]
             [clojure.string :as str]))
 
-(def listings (io.load-all-from-file "resources/listings.txt"))
+(def listings (io/load-all-from-file "resources/listings.txt"))
 
-(def products (io.load-all-from-file "resources/products.txt"))
+(def products (io/load-all-from-file "resources/products.txt"))
 
 (defn get-tr [hash keyword]
   (str/trim (str/lower-case (get hash keyword ""))))
