@@ -87,6 +87,7 @@ matching-functions and their weights."
   (println "Finding matches. This can take a while...")
   ;; (print "Matches found: 0 \r")
   (time
-   (doall
-    (io/write-all-to-file "resources/results.txt"
-                          (match-all listings products)))))
+   (do (doall
+        (io/write-all-to-file "resources/results.txt"
+                              (match-all listings products)))
+       (shutdown-agents))))
