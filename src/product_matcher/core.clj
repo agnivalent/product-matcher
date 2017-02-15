@@ -62,14 +62,29 @@ matching-functions and their weights."
                         (get % 1)))
                  matching-functions)))
 
+;; (defn match-all [listings products]
+;;   (for [l listings p products
+;;         :when (let [probability (match-probability l p)]
+;;                 ;; (if (= 1 probability) (print "Matches found: 123123    \r"))
+;;                 (= 1 probability))]
+;;     [l p]))
+
+(defn match-all [listings products]
+  (pmap (fn [product]
+         (assoc product
+                :listings
+                (reduce (fn [product-listings listing]
+                          (if (= 1 (match-probability listing product))
+                            (println "MATCH" product listing)
+                            (conj product-listings listing)))
+                        []
+                        listings)))
+       products))
+
 (defn -main
   [& args]
   (println "Finding matches. This can take a while...")
   ;; (print "Matches found: 0 \r")
   (time
    (doall
-    (for [l listings p products
-          :when (let [probability (match-probability l p)]
-                  ;; (if (= 1 probability) (print "Matches found: 123123    \r"))
-                  (= 1 probability))]
-      [l p]))))
+    (match-all listings products))))
