@@ -5,14 +5,21 @@
             [clojure.java.shell :refer [sh]]
             [clojure.string :as str]))
 
+(defn- all-matched-listings [pwm]
+  (reduce #(into %1 (:listings %2)) [] pwm))
+
 (defn- count-matches [pwm]
-  (count (reduce #(into %1 (:listings %2)) [] pwm)))
+  (count (all-matched-listings pwm)))
 
 (deftest validate-file-format
   (let [pwm (match-all listings products)]
-    (testing "there's enough matches, but not too much"
-      (is (> (count-matches) 6000))
-      (is (< (count-matches) 10000)))
+    (testing "there's enough matches, but not too many"
+      (is (> (count-matches pwm) 6000))
+      (is (< (count-matches pwm) 10000)))
+    (testing "listing is matched only once"
+      (let [ls (all-matched-listings pwm)]
+        (= (count ls)
+           (count (into #{} ls)))))
     (testing "results file format is right using online validator"
       (is
        (do
